@@ -1,8 +1,11 @@
 from binarytree import BinaryTree
 
 def dfs(node, value):
+
     if node is None:
         return False
+    
+    print(node.data)
     
     if node.data == value:
         return True

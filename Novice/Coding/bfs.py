@@ -4,6 +4,8 @@ from collections import deque
 def bfs(node, value):
     if not node:
         return False
+    
+    print(node.data)
 
     queue = deque([node])
 
