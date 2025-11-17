@@ -159,3 +159,58 @@ Container: Abstract data type that permits storage and retrieval of data items i
 **Graph**: Typically implemented with adjacency matrices or lists.<br>
 **Set**: Subsets of items typically represented using a dictionary to support fast membership queries.
 
+# Ch 4 - Sorting
+**Stable**: A sorting algorithm is stable if sorted elements retain their relative order. For example, if we have two duplicates with the same value, call them A and B. Assume A occurs before B in the unsorted dataset. Then when we sort the dataset, A will still come before B.
+
+## Heap Sort
+- Min or Max Heaps.
+- Works like a priority queue.
+- Heaps aren't necessarily sorted but lie somewhere between sorted and random.
+    - In Min heap: each node is larger than it's parents but smaller than it's children, though is not sorted between it's siblings.
+- Heaps are typically binary trees
+- Always fills left to right
+- Accessing parent (from array): child_index // 2
+- Access children (from array): parent_index * 2
+- Involves constructing a heap and then popping the root repeatedly, adding the value to the sorted array.
+    - Time Complexity: O(nlog(n))
+
+### Heap Init & Insert
+- Sequentially add each value to the heap, percolating on each iteration to ensure integrity.
+
+### Heap Delete
+- When we pop the root (i.e the max or min of the heap), we replace with the right-most (last) child.
+- Iteratively percolate down to ensure heap integrity.
+
+### Faster Heap Construction (Bottom-Up Build)
+- Instead of inserting one element at at ime, treat the array as a heap and fix it from the bottom up.
+- Start from the last non-leaf node and percolate down.
+- This turns the arbitrary array into a valid heap in O(n) time.
+- Construction time does not dominate complexity of heap sort, so sorting still takes O(nlog(n)).
+
+## Merge Sort
+- Divide and Conquer algorithm.
+- Recursively split the array into halves until each subarray has 1 element.
+    - O(log(n)).
+- Then merge the small sorted subarrays back together into larger sorted ones.
+- The merge step compares the smallest unused elements of each half and builds a new sorted list.
+    - O(n) per level.
+- Time Complexity: O(nlog(n)).
+- Very useful for linked lists as it does not rely on random access to elements like in heap and quick sort.
+    - Efficient for pointer based DS as we do not need extra storage for merging.
+    - For arrays for example, we need to develop a temporary third array to merge the left and right subpartitions.
+
+## Quick Sort
+- Recursive sorting algorithm.
+- Choose some pivot element p.
+    - We have a 1/2 chance of selecting a "good enough" pivot, meaning it forms decently even splits and is somewhat close to the true median.
+- Partition all other items into < p and >= p.
+- We now have p in the center of this partition. When we further sort, elements in the Low and High regions will never flip to the other side of p, meaning we can recursively sort the smaller partitions.
+- Recursively select a new p for Low and High partitions and sort.
+- Time Complexity: O(nlog(n)).
+    - In the worst case, where we repeatedly select either the smallest or larger value as our pivot, time complexity can become O(n^2).
+- Since quick sort runs in O(n^2) time when the array is already sorted, we can spend O(n) time to randomise the array to greatly decrease the odds of our array being sorted. This means we (almost) no longer can face O(n^2) time and (almost) guarentee O(nlog(n)).
+
+## Randomisation
+**Random Sampling**: Select a small random sample and find the median, assume it reprents the full set.<br>
+**Randomised Hashing**: In the worst case, all of our hashed values face collisions. If we randomly select a hash function out of a set of good hash functions, we reduce the odds of facing many collisions.<br>
+**Randomised Searching**: Simulated annealing.
