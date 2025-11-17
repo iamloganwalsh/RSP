@@ -214,3 +214,66 @@ Container: Abstract data type that permits storage and retrieval of data items i
 **Random Sampling**: Select a small random sample and find the median, assume it reprents the full set.<br>
 **Randomised Hashing**: In the worst case, all of our hashed values face collisions. If we randomly select a hash function out of a set of good hash functions, we reduce the odds of facing many collisions.<br>
 **Randomised Searching**: Simulated annealing.
+
+## Bucket Sort
+Example: Sorting names in a phonebook.
+- First, partition them according to first letter of the larst name.
+- This creates 26 buckets of names.
+    - Any name in the C pile must occur after any name in the B pile.
+    - Therefore we can sort individual buckets and concatenate them all together to form a sorted list.
+- Assuming names are evenly distributed, 26 smaller sorting problems are much better than sorting an entire array.
+- We can further partition each pile based on the second letter of each name, getting smaller and smaller piles.
+- The set of names will be completely sorted once every bucket contains only a single name.
+
+Bucket sort is very effective when we expect the distribution of data to be uniform.
+
+# Ch 5 - Divide and Conquer
+- Divide a problem into 2 smaller subproblems, solve each recursively, then combine the partitions into the final solution.
+- Algorithm is considered efficient if merging takes less time than solving the 2 subproblems.
+
+## Binary Search
+
+### Counting Occurances - BS
+- Can binary search to find an element, then sequentially check left and right.
+- This can take up to O(n) if the array contains only a single unique element.
+- We can modify binary search to find the right boundary of the block, then iterate left until you reach the left boundary.
+    - Delete the arr[middle] == key check. This means that our search always fails and returns -1, so instead we want to return (l + r) / 2.
+    - Whenever we recalculate to another index with the same value, it will proceed to the right.
+    - Our algorithm will eventually terminate once it reaches the right boundary.
+
+### One-Sided BS
+- Suppose we have an array containing a series of 0's followed by a series of 1's, and we want to find the point where it transitions.
+- If bounded, we could find this point in log(n) tests.
+- Without a bound, we repeatedly test larger intervals until we find a non-zero value.
+    - By doubling our interval each time, we can formulate a window to perform binary search on.
+    - For example, if A[8] = 0 and A[16] = 1, this can become our window.
+    - This means we can find the transition point in at most 2log(p) comparisons.
+
+### Finding Square Roots
+- We can find the square root of a number using binary search.
+- Simply set the lower boundary to 1 and upper boundary to the number whose root we are trying to find.
+- From here, we can use binary search to find the root.
+
+## Fast Multiplication
+1. Split numbers in half, breaking them into smaller pieces.
+2. Multiply the smaller pieces.
+3. Apply Karatsuba's trick.
+    - Normally you'd need 4 small multiplications, but this trick allows us to use only 3.
+4. The general idea is that we can perform fewer than needed multiplications, allowing us to speed up the process for larger numbers.
+
+## Largest Subrange and Closest Pair
+- Task: take an array A of n numbers, and find the index pair that maximises array[i:j] (inclusive).
+- Brute force solutions gives O(n^2).
+- Divide and Conquer solution:
+    - Max subrange is either entirely in the left or right halves or crosses the middle.
+    - If we have to cross the middle, we need to find the best from the left side which meets the middle and do the same for the right side.
+    - We find this crossover in O(n).
+    - Therefore our recurrence gives us O(nlog(n))
+
+## Parallel Algorithms
+- Parallel Computation is  the process of breaking large problems into smaller subtasks, using multiple processors to solve it faster.
+- Divide and Conquer is most suited to parallel computation.
+- We want to partition our problem of size n into p equally sized parts, and feed one to each processor.
+- This reduces time cost from T(n) to T(n/p), plus the cost of combining results together.
+
+**Data Parallelism**: Running a single algorithm on different and independent datasets.
