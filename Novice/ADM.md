@@ -277,3 +277,28 @@ Bucket sort is very effective when we expect the distribution of data to be unif
 - This reduces time cost from T(n) to T(n/p), plus the cost of combining results together.
 
 **Data Parallelism**: Running a single algorithm on different and independent datasets.
+
+## Convolution
+- A way of combining two functions or sequences to form a third function.
+- C[n] = Sum_k(A[k] * B[n-k])
+- Imagine sliding one function over another, multiplying the overlapping parts, and adding them up. The amount of overlap at each position becomes the output.
+- Used in signal & image processing, machine learning (CNNs), and more.
+
+# Ch 6 - Hashing and Randomised Algorithms
+- Most previously discussed algorithms are designed to optimise worst case performance.
+- Relaxing this demand can lead to useful algorithms that still have performance guarantees.
+- Randomised algorithms aren't heuristics, and bad performance can be due to being unlucky rather than because of input data.
+- There are two types of randomised algorithms, differing by their guarentee on correctness or efficiency.
+    1. Las Vegas algorithms: guarentee correctness, and are usually (but not always) efficient.
+    2. Monte Carlo algorithms: probably efficient, and usually (but not always) produce the correct answer or something close to it.
+- Eliminating the need to worry about rare or unlikely situations makes it possible to avoid complicated data structures.
+- Randomised algorithms are difficult to analyse rigorously.
+
+## Probability - go over again
+
+## Balls and Bins
+- Say we have x balls and y bins. We are interested in the distribution of balls in bins assuming we throw all x balls towards y bins.
+- Hashing can be thought of as this Ball and Bin process. Suppose we have n balls and n bins.
+    - We expect on average 1 ball per bin, but this is true regardless of hashing function quality.
+    - A good hash function should behave as a RNG, selecting integers with equal probability from 1 to n.
+- 36.78% of bins in large hash tables are expected to be empty or have only one element.
