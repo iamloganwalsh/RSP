@@ -302,3 +302,76 @@ Bucket sort is very effective when we expect the distribution of data to be unif
     - We expect on average 1 ball per bin, but this is true regardless of hashing function quality.
     - A good hash function should behave as a RNG, selecting integers with equal probability from 1 to n.
 - 36.78% of bins in large hash tables are expected to be empty or have only one element.
+
+# Ch 7 - Graph Traversal
+- A graph G = (V, E), where V is a set of vertices and E is a set of  vertex pairs, also known as edges.
+- Graphs can be used to represent essentially any relationship.
+
+## Types of Graphs
+**Weighted**: Each edge or vertex in a weighted graph is assigned a numerical value, also known as a weight. This is important for shortest path problems. For unweighted graphs, the shortest path is calculated based on the shortest number of edges, and can be solved using BFS only. Weighted graphs on the other hand require more complicated algorithms such as dijkstras.
+
+**Simple vs Non-Simple**: A graph is simple if it doesn't contain self-loops (edges on a node that point back to itself, an edge (x,x)) or multiedges (multiple bridges between two nodes, e.g (x,y) exists more than once in our set of edges).
+
+**Sparse vs Dense**: Graphs are sparse only when a small fraction of possible vertex pairs have edges. Dense graphs typically have n^2 edges, while sparse graphs are linear in size.
+
+**Complete**: A graph is complete if it contains all possible edges.
+
+**Connected**: A graph is connected if every pair of vertices is connected by some path.
+
+**Cyclic vs Acyclic**: A cycle is a closed path of 3 or more vertices that has no repeating vertices except for the start/end point. Trees are undirected graphs which are connected and acyclic.  Directed acyclic graphs (DAGs) arise in scheduling problems, where a directed edge (x,y) indicates that an activity x must occur before y.
+
+**Topological**: The edge-vertex representation G = (V, E) describes the purely topological aspects of a graph.
+
+**Embedded**: A graph is embedded if the vertices and edges are assigned geometric positions.
+
+**Implicit vs Explicit**: Certain graphs are not explicitly constructed then traversed, but built as we use them.
+
+**Labelled vs Unlabelled**: Each vertex is assigned a unique name/identifier in a labelled graph to distinguish it from all other vertices.
+
+**Friendship**: A friendship graph models people as vertices and friendships as edges. 
+
+## Graph Data Structures
+Assume some graph G = (V, E) contains n vertices and m edges.
+1. Adjacency List: represent G using a list of lists L, where L[i] is a list of all vertices j such that (i,j) is an edge of G.
+2. Adjacency Matrix: represent G using an n x n matrix M, where element M[i,j] = 1 if (i,j) is an edge of G, and 0 if it isn't.
+
+### Adjacency List Advantages:
+- Faster to find the degree of a vertex.
+- Less memory on sparse graphs.
+- Faster traversal.
+- Better for most problems.
+
+### Adjacency Matrix Advantages:
+- Faster to test if an edge is in a graph.
+- Less memory on dense graphs.
+- Edge insertion/deletion.
+
+It is harder to check if an edge exists in adjacency lists, but it is easy to design algorithms that avoid such queries.
+
+## Graph Traversal
+- Mark each vertex when we first visit it, and keep track of what vertices we haven't explored.
+- Each vertex has one of three states:
+    1. Undiscovered.
+    2. Discovered: found but not explored.
+    3. Processed: we have discovered all of the vertex's incident edges.
+
+### BFS
+- Maintain a queue and visit nodes in order of the queue.
+- Only useful in unweighted graphs.
+- Applications:
+    - If properly implemented using adjacency lists, any graph traversal algorithm is linear since BFS is O(n + m) for both directed and undirected edges.
+    - Connected Components: BFS can find all connected vertices as it traverses all discovered edges.
+    - Two-Colouring Graphs: Assigns a colour to each vertex of a graph such that no edge links any two vertices of the same colour.
+        - A graph is bipartite if it can be coloured without conflicts using only two colours.
+        - Can be achieved by augmenting BFS to assign the opposite colour to a nodes parent.
+
+### DFS
+- Expands nodes as they appear then go back and try siblings.
+- Back edge: edge whose other endpoint is an ancestor of the vertex being expanded.
+- Applications:
+    - Finding cycles in graphs. Undirected: finding vertex is visited but not the parent of the current vertex. Directed: finding a vertex that is visited which is already in the recursion stack.
+    - Articulation (Cut-node) Vertices: A single vertex whose deletion disconnects a connected component of the graph. **Go over this again**
+        - Connectivity: smallest number of vertices whose deletion will disconnect the graph.
+        - For each vertex u, we compute disc[u] (discovery time when first visiting u) and low[u] (the earliest discovered vertex reachable from u). low[u] detects whether a child subtree can "escape" upward via a back edge.
+        - For root of the tree, if there is two or more children then it must be an articulation vertex.
+        - For a non-root vertex, it is an articulation point if low[u] > disc[u] where v is one of u's children. This means the child subtree rooted at v cannot reach any ancestor of u with a back edge. If u is removed, v's entire subtree becomes disconnected, meaning u is a cut vertex.
