@@ -629,7 +629,7 @@ def dijkstras(graph, start):
 ### Floyd-Warshall Algorithm
 - Works on graphs with negative weights.
 - Can be used to find:
-    - Graph's diameter: The largest shortest-path distance over all pairs of vertices.
+    - Graph's diameter: The largest shortest-path distance over **all pairs** of vertices.
     - Centre vertex: The vertex that minimises the longest or average distance to all the other nodes.
 - This involves calculating the shortest path between all pairs of vertices in a graph.
 - Best implemented using an adjacency matrix since we need to store n^2 distances anyways.
@@ -673,3 +673,56 @@ def floyd_warshall(graph):
 
 ### Bellman-Ford Algorithm
 - Single source shortest path algorithm.
+- Given a weighted graph G = (V, E) and a source vertex start, the task is to compute shortest distance from the **starting vertex** to all other vertices.
+    - If negative cycle occurs, return None
+    - If a vertex is unreachable, the distance should be infinite
+- Time Complexity: O(V * E).
+- Principle of Relaxation of Edges: Relaxation means updating the shortest distance to a node if a shorter path is found through another node.
+```py
+import math
+
+def bellman_ford(num_vertices, edges, start):
+
+    # Initialise distance
+    dist = [math.inf] * num_vertices
+    dist[start] = 0
+
+    for i in range(num_vertices):
+        for edge in edges:
+            u, v, weight = edge
+
+            # Relax edges (replace with shorter path)
+            if dist[u] != math.inf and dist[u] + weight < dist[v]:
+
+                if i == num_vertices - 1:           # If our path can still be improved, we have a negative cycle
+                    return [None]
+
+                dist[v] = dist[u] + weight
+    
+    return dist
+```
+
+## Network Flows and Bipartite Matching
+- An edge weighted graph can be interpreted as a network of pipes, where the weights of an edge determines the capacity of the pipe.
+- The network flow problem asks for the maximum amount of flow that can be sent from vertices s to t in a given weighted graph G while respecting the maximum capacities of each pipe.
+
+### Bipartite Matching
+- A matching in a graph G = (V, E) is a subset of edges E' \subset E such taht no two edges E' share a vertex.
+    - A set of edges that don't share any vertices.
+- G is bipartite or two-colourable if the verices can be divided into two sets L and R such that all edges in G have one vertex in L and one vertex in R.
+- Finding the maximum cardinality bipartite matching using network flow:
+    - Create source node s that is connected to every vertex in L with an edge weight of 1.
+    - Create sink node t that is connected to every vertex in R with an edge weight of 1.
+    - The maximum possible flow from s to t defines the largest matching in G.
+
+### Computing Network Flows
+- Augmenting path: A path in a flow network that can carry more flow, increasing the total flow from source to sink.
+- A flow through a network is optimal iff it contains no augmenting path.
+- Each augmentation increases flow, so we repeat until no such path remains to find the global maximum.
+- Residual flow graph:
+    - Flow network constructed from graph G and flow f.
+    - For each edge e of G:
+        - If c(e) - f(e) > 0, create forward edge e with capacity equal to c(e) - f(e), i.e remaining capacity.
+        - If f(e) > 0, create backwards edge with capacity equal to f(e), i.e capacity used.
+    - A path in the residual flow graph from s to t implies that more flow can be pushed from s to t.
+    - The smallest edge weight on this path defines the amount of extra flow that can be pushed along it.
