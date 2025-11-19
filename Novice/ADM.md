@@ -726,3 +726,214 @@ def bellman_ford(num_vertices, edges, start):
         - If f(e) > 0, create backwards edge with capacity equal to f(e), i.e capacity used.
     - A path in the residual flow graph from s to t implies that more flow can be pushed from s to t.
     - The smallest edge weight on this path defines the amount of extra flow that can be pushed along it.
+
+# Ch 9 - Combinatorial Search
+
+## Backtracking
+- Systematically running through all possible configurations of a search space.
+- These may represent:
+    - All possible arrangements of objects (permutations).
+    - All possible ways of building a collection of objects (subsets).
+- Other common situations to use backtracking:
+    - Enumerating all spanning trees of a graph.
+    - Enumerating all paths between two vertices.
+    - All possible ways to partition vertices into colour classes.
+- We generate each possible configuration exactly once, avoiding repititions and missed configurations.
+    - We need a systematic generation order.
+- Combinatioral search solutions are modelled as a vector a = (a1, a2, ..., a_n) where each element a_i is selected from a finite ordered set S_i.
+    - This vector might represent an arrangement where a_i contains the ith element of the permutation.
+    - Or a is a Boolean vector representing a given subset S, where a_i is true iff the ith element of the universal set is in S.
+    - It can also represent a seuqnece of moves in a game, or a path in a game where a_i contains the ith game move or graph edge in the sequence.
+- At each step in the backtracking algorithm, we try to extend a given partial solution by adding another element at the end.
+    - Then, we test whether we now have a complete solution:
+        - If so, we print or return or whatever the solution.
+        - Else we must check if the partial solution is potentially extendable to form a complete solution.
+            - Using methods such as forward checking can identify failed solutions early on.
+- Backtracking constructs a tree of partial solutions, where each node represents a partial solution.
+    - There is an edge from x to y if node y was created by extending x.
+    - This tree of partial solutions provides an alternative way to think about backtracking.
+        - The process of construction solutions corresponds to doing a DFS traversal of the backtrack tree.
+            - BFS can be used but uses more space.
+        - This yields a recursive implementation of a basic backtracking algorithm.
+    - The current state of the search is represented by a path from root to current DFS node.
+```py
+def backtrack(a, k):
+    """
+    Generic backtracking implementation.
+    a: list representing a partial solution.
+    k: integer representing current position in the solution a.
+    """
+
+    if is_solution(a, k):                       # If the partial solution is actually a full solution,
+        process_solution(a)                     # we either return or print or somehow handle the solution
+        return
+
+    for choice in generate_choices(a, k):       # All possible values for a[k]
+        if is_valid(a, k, choice):              # Is this a valid partial solution
+            a[k] = choice                       # Make the choice (extend the partial solution)
+            backtrack(a, k + 1)                 # Go deeper
+            a[k] = None                         # Undo the choice (backtrack)
+```
+**Functions in above code**:
+- is_solution(a,k): tests whether the first k elements of vector a form a complete solution for the given problem.
+- process_solution(a): handles the case where our partial solution qualifies as a complete solution. This could be printing, counting, storing, or somehow processing the complete solution.
+- generate_choices(a, k): returns some array filled with possible candidates for the kth position of partial solution a given the previous k - 1 elements.
+
+### BT Example 1 - Constructing all Subsets
+- How many subsets are there of an n-element set, say integers {1, ..., n}.
+    - Two subsets for n = 1, being {} and {1}, there are 4 subsets for n = 2, 8 subsets for n = 3.
+        - 2^n subsets of n elements.
+    - Each subset described by elements inside it.
+    - To construct all subsets, we set up a Boolean array of n cells, wwhere a value a_i signifies whether the ith item is in the given subset.
+    - For the general algorithm, S_k = (true, false) and a is a solution whenever k = n.
+```py
+def gen_subsets(n):
+    a = [False] * n
+    results = []
+
+    def backtrack(k):
+        # If we have assigned all n positions, record the subset
+        if k == n:
+            subset = [i + 1 for i in range(n) if a[i]]
+            results.append(subset)
+            return
+        
+        # Case 1: Include k+1
+        a[k] = True
+        backtrack(k+1)
+
+        # Case 2: Disclude k+1
+        a[k] = False
+        backtrack(k+1)
+
+    backtrack(0)
+    return results
+```
+
+### BT Example 2 - Constructing all Permutations
+- Counting permutations of {1, ..., n} is necessary to generate them.
+- There are n distinct choices for the value of the first element of a permutation, then n-1 candidates for the second position, so there are n! distinct permutations.
+- Set up an array a of n cells.
+    - The set of candidates for the ith position will be all elements that have not appeared in the i - 1 elements of the partial solution, corresponding to the first i - 1 elements of the permutation.
+- For the genberal algorithm, S_k = {1, ..., n} - {a_1, ..., a_k} and a is a solution whenever k = n.
+```py
+def permutations(n):
+    a = [None] * n                  # Holds current permutation
+    used = [False] * (n + 1)        # Checks taken numbers
+
+    def backtrack(k):
+        if k == n:                  # Base case: Wer have used all the numbers
+            print(a)                # aka permutation is complpete
+            return
+
+        for x in range(1, n+1):     # Iterate every candidate, if statement filters for unused
+            if not used[x]:
+                a[k] = x
+                used[x] = True
+
+                backtrack(k+1)      # Backtrack with current value of x
+                used[x] = False     # Reset used[x] for the next iteration (undo choice)
+
+    backtrack(0)
+```
+### BT Example 3 - Constructing all Paths in a Graph
+- In a simple path, no vertex appears more than once.
+- Enumerating all simple s to t paths in a given graph is more complicated than permutations or subsets.
+- The input data we must pass to backtrack to construct the paths consists of the input graph g, source vertex s, and target vertex t.
+- The starting point of any path from s to t is always s, thus s is the only candidate for the first position.
+    - The possible candidates for the second position are the vertices such that (s,v) is an edge for a graph.
+    - Whenever a_k = t, we've found a successful path.
+- In general, S_k+1 consists of the set of vertices adjacent to a_k that have not been used elsewhere in the partial solution a.
+```py
+def all_paths(g, s, t):
+    path = [s]
+    visited = set([s])
+
+    def backtrack(vertex):
+        if vertex == t:
+            print(path)
+            return
+        
+        for neighbour in g[vertex]:             # Iterate all edges
+            if neighbour not in visited:
+                visited.add(neighbour)          # Add neighbour to visited set
+                path.append(neighbour)          # Add the neighbour to the path for next iteration
+                backtrack(neighbour)
+                visited.remove(neighbour)       # Undo the visit
+                path.pop()
+
+    backtrack(s)
+```
+
+## Search Pruning
+- It is inefficient to construct all permutations first to be analysed later.
+- Suppose our search started from vertex v1, and the vertex pair (v1, v2) was not an edge in G.
+    - The (n - 2)! permutations enumerated starting with (v1, v2) as its prefix would be a complete waste of effort.
+    - It is better to stop the search after [v1, v2] and continue from [v1, v3].
+        - This means to discard the search that finds [v1, v2] and instead try the next best option, which in this case is [v1, v3] as this is a valid edge in G.
+- Pruning: The technique of abandoning a serach direction the instant we can establish that a given partial solution can't be extended into a full solution.
+    - Also known as forward checking.
+
+## Sudoku
+- The state space will be the collection of open squares, each of which must eventually be filled with a digit.
+- The candidates for open square (i, j) are integers from 1 to 9 that have no appeared in row i, column j, or the 3x3 sector containing (i, j).
+    - We backtrack as soon as we are out of candidates for a square.
+```py
+def sudoku(board):
+    """
+    Non-optimised, simple sudoku solver.
+    May fail TLE on leetcode in cases where most slots are empty spaces.
+    """
+    def is_valid(row, col, candidate):
+
+        # Check column
+        for it_col in range(9):
+            if board[row][it_col] == candidate:
+                return False
+        
+        # Check row
+        for it_row in range(9):
+            if board[it_row][col] == candidate:
+                return False
+
+        # Check 3x3 box
+        box_row = (row // 3) * 3
+        box_col = (col // 3) * 3
+        for i in range(3):
+            for j in range(3):
+                if board[box_row + i][box_col + j] == candidate:
+                    return False
+
+        return True
+    
+    def backtrack():
+        for row in range(9):
+            for col in range(9):
+                if board[row][col] == ".":                  # Empty space
+                    for candidate in range(1, 10):
+                        if is_valid(row, col, str(candidate)):
+                            board[row][col] = str(candidate)
+                            if backtrack():
+                                return True
+                            board[row][col] = "."           # Undo
+
+                    return False                            # No valid solution
+        return True                                         # No empty cells left means we solved the problem
+
+    backtrack()
+```
+
+## Best-First Search
+- Best-First search assigns a heuristic cost to every partial solution or frontier node.
+- A priority queue is used to expand the node with the lowest heuristic value, which is the node closest to the goal.
+- Chooses the best option for right now, making it a greedy algorithm.
+
+## A* Heuristic
+- Combines Best-First Search with Uniform-Cost Search or Dijkstras (UCS ~= Dijkstras).
+    - Uniform-Cost Search (UCS): Expands path with the lowest total edge cost from the start.
+- Using a lower bound on the cost of all partial solution extensions is stronger than just the cost of a current partial tour.
+- f(n) = g(n) + h(n)
+    - g(n): current path cost.
+    - h(n): heuristic estimated cost from node n to goal.
+    - f(n): estimated total cost of path through node n to the goal.
+- Without h(n), the algorithm is essentially Dijkstra's algorith.
