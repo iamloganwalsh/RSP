@@ -937,3 +937,294 @@ def sudoku(board):
     - h(n): heuristic estimated cost from node n to goal.
     - f(n): estimated total cost of path through node n to the goal.
 - Without h(n), the algorithm is essentially Dijkstra's algorith.
+
+# Ch 10 - Dynamic Programming
+- Algorithms for optimisation problems require proof that they always return the best possible solution.
+    - Greedy algorithms that make the best local decision at each step are typically efficient, but don't guarantee global optimality.
+    - Exhaustive search algorithms that try all possibilities and select the best always produces an optimal result, but have poor time complexity.
+- DP allows us to design algorithms that systematically search all possibilities, while storing intermediate results to avoid recomputing.
+- It is usually the right method for optimisation problems on combinatorial objects that have a left to right order among components.
+    - Includes strings, rooted trees, polygons, integer sequences.
+
+## Caching vs Computation
+- DP is a tradeoff of space for time.
+- In principle, caching can be used on any recursive algorithm, but storing partial results is useless for algorithms such as quicksort, backtracking and DFS because the values that are stored only get used once.
+- Caching makes sense when the space of distinct parameter values is small enough that we can afford the cost of storage.
+
+### Fibonacci
+- Recursive algorithm takes O(1.6^n) time.
+- We can cache results of each fibonacci computation F(k) in a tabled indexed by k (memoisation).
+- This DP approach runs in O(n) time and requires O(n) space.
+```py
+def fib_memo(n, memo={}):
+    if n in memo.keys():
+        return memo[n]
+    if n in [0, 1]:
+        return n
+    memo[n] = fib_memo(n - 1, memo) + fib_memo(n - 2, memo)
+    return memo[n]
+
+print(fib_memo(10))     # Prints 55
+```
+
+### Binomial Coefficients
+- n Choose k = number of ways to choose k things out of n possibilities.
+    - nCk = n! / (k! * (n-k)!)
+- In principle, you can compute them straight from factorials, but intermediate calculations can cause arithmetic overflow, even if the final coefficient fits within an integer.
+- A more stable way is to use the recurrence relation implicit in the construction of Pascal's triangle.
+    - Each number is the num of the two number sdirectly above it.
+    - nCk = (n-1)C(k-1)+(n-1)Ck
+```py
+def binomial_memo(n, k, memo={}):
+    if (n,k) in memo:
+        return memo[(n,k)]
+    
+    if k == 0 or k == n:
+        return 1
+
+    memo[(n,k)] = binomial_memo(n-1,k-1,memo) + binomial_memo(n-1,k,memo)
+    return memo[(n,k)]
+
+print(binomial_memo(5, 2))      # Prints 10
+```
+
+## Approximate String Matching
+- We already know the algorithms for exact string matching - finding where the pattern string P occurs as a substring of the text T.
+- We want to search for the substring closest to a given pattern, to compensate for spelling errors.
+- We first define a cost function telling us how far apart two strings are.
+    - A reasonable distance measure reflects the number of changes that must be made to convert one string to another. There are 3 natural types of changes:
+        1. Substitution: replace a single character in pattern P with a different character.
+        2. Insertion: insert a single character into P to help it match text T.
+        3. Deletion: delete a single character from P to help it match T.
+    - Each operation has a cost of 1
+
+### Edit Distance by Recursion
+- The last character in the string must be matched, substituted, inserted, or deleted.
+- Chopping charcters leaves a pair of smaller strings
+    - Let i, j be indices of the last character of the relevant prefix of P and T.
+    - There are 3 pairs of shorter strings after the last operation, corresponding to the strings after a match/substitution, insertion or deletion.
+    - If we knew the cost of editing these 3 pairs of smaller strings, we could decide which options lead to the best solution and choose options accordingly.
+- Let D[i,j] be the minimum number of differences between substrings P_1,...,P_n and T_1,...,T_j.
+    - D[i,j] is the minimum of the three possible ways to extend smaller strings.
+        1. If (Pi = Tj), then D[i-1, j-1], else D[i-1, j-1] + 1
+            - This means we either match or substitute the ith and jth characters, depending on whether the tail characters are the same.
+            - The cost of a single character substitution can be returned by a function match(Pi, Tj).
+        2. D[i, j-1] + 1
+            - This means there is an extra character in the text to account for, so we need to do an insertion.
+            - The cost of a single character insertion can be returned by a function indel(Tj).
+        3. D[i-1, j] + 1
+            - This means there is an extra character to remove, so we need to do a deletion.
+            - The cost of a single character deletion can be returned by a function indel(Pj).
+```py
+MATCH = 0
+INSERT = 1
+DELETE = 2
+
+def indel(char):
+    # Cost of insertion/deletion
+    return 1    # Fixed cost
+
+def match(c1, c2):
+    # Cost of match or substitution
+    return 0 if c1 == c2 else 1
+
+def str_comp_r(s, t, i, j):
+    if i == 0:
+        return j    # Cost of inserting all remaining characters of t
+    if j == 0:
+        return i    # Cost of deleting all remaining characters of s
+    
+    # Defining option costs
+    options = [0] * 3
+    opt[MATCH] = str_comp_r(s, t, i-1, j-1) + match(s[i-1], t[j-1])
+    opt[INSERT] = str_comp_r(s, t, i, j-1) + indel(t[k-1])
+    opt[DELETE] = str_comp_r(s, t, i - 1, j) + indel(s[i-1])
+
+    # Find the lowest cost option
+    lowest_cost_opt = min(opt)
+    return lowest_cost_opt
+
+# Example Usage
+s = "intention"
+t = "execution"
+result = str_comp_r(s, t, len(s), len(t))
+print(f"Minimum edit distance: {result}")
+```
+- While this is a correct implementation, it has exponential time complexity because it recalculates values.
+- At every position in the string, the recursion branches 3 ways, so it grows at a rate of at least 3^n.
+
+**DP Implementation**
+```py
+MATCH = 0
+INSERT = 1
+DELETE = 2
+
+def indel(char):
+    # Cost of insertion/deletion
+    return 1    # Fixed cost
+
+def match(c1, c2):
+    # Cost of match or substitution
+    return 0 if c1 == c2 else 1
+
+def str_comp_memo(s, t, i, j, memo):
+    # Checking if the result is already cached
+    if (i, j) in memo:
+        return memo[(i, j)]
+
+    if i == 0:
+        return j    # Cost of inserting all remaining characters of t
+    if j == 0:
+        return i    # Cost of deleting all remaining characters of s
+    
+    # Recursive cases with memoisation
+    options = [0] * 3
+    opt[MATCH] = str_comp_r(s, t, i-1, j-1, memo) + match(s[i-1], t[j-1])
+    opt[INSERT] = str_comp_r(s, t, i, j-1, memo) + indel(t[k-1])
+    opt[DELETE] = str_comp_r(s, t, i - 1, j, memo) + indel(s[i-1])
+
+    # Find lowest cost option and cache the result
+    memo[(i, j)] = min(opt)
+    return memo[(i, j)]
+
+def string_compare(s, t):
+    memo = {}
+    return str_comp_memo(s, t, len(s), len(t), memo)
+
+# Example Usage
+s = "intention"
+t = "execution"
+result = str_comp_memo(s, t, len(s), len(t))
+print(f"Minimum edit distance: {result}")
+```
+### Varieties of Edit Distance
+- Substring matching: We want to find where a short pattern P best occurs within a long text T.
+    - Without modification, the edit distance function considers the cost of deleting all characters in T that are not part of P. Starting a match in the middle of T also incurs additional costs from the prefix of T that doesn't align with P.
+    - To make it works, we modify edit distance to allow:
+        1. Flexible starting point
+            - Instead of aligning P with start of T, we compute the edit distance for P against every possible substring of T.
+            - The starting point of the match doesn't incur a cost penalty.
+        2. Flexible goal state
+            - In the regular edit distance, the goal state is at dp[len(P)][len(T)], which represents aligning P with the entirety of T.
+            - Here, the goal state can occur at any position in T.
+- Longest common subsequence (LCS): We want to find the longest scattered string of characters included in both strings, without changing the relative order.
+    - Here, P can align anywhere within T, so the goal is to find the maximum LCS value over all positions of T.
+    - A common subsequence is defined by all the identical character matches in an edit trace.
+        - To maximise the number of such matches, we need to prevent the substitution of non-identical characters.
+        - This way, the only way to remove a non-common subsequence is through insert/delete.
+        - The minimum cost has the fewest insert/deletes, so it preserves the longest common substring.
+- Maximum monotone subsequence: a numerical sequence is monotonically increasing if the ith element is at least as big as the (i-1)st element.
+    - The maximum monotone subsequences seeks to delete the fewest number of elements from an input string S to leave a monotonically increasing subsequence.
+    - This is just LCS, where the second string is the elements of S sorted in increasing order.
+
+## Longest Increasing Subsequence
+- There are 3 steps to solving problems using DP:
+    1. Formulate the answer as a recurrence relation.
+    2. Show that the number of different values taken on by your recurrence is bounded by a polynomial.
+    3. Specify an evaluation order for the recurrence so the partial results you need are always available when you need them.
+- Find the longest monotonically incresaing subsequence with a sequence of n numbers.
+    1. DP table
+        - Let dp[i][j] represent the length of the LCS of the first i characters of X and first j characters of Y.
+    2. Recurrence relation
+        - If characters match (X[i-1] == Y[j-1]):
+            - dp[i][j] = dp[i-1][j-1] + 1
+            - Include the matching character in the LCS.
+        - If characters don't match:
+            - dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+            - Take the maximum LCS length by skipping one character from either X or Y.
+    3. Base case
+        - If either string is empty:
+            - dp[i][0] = 0, dp[0][j] = 0
+            - The LCS of an empty string with any string is 0.
+    4. Final result
+        - The value in dp[m][n] where m = len(X) and n = len(Y) is the length of the LCS of X and Y.
+    - To reconstruct the actual sequence:
+        - For each element s_i, we store its predecessor, the index p_i of the element that appears immediately before s_i in a longest incresaing sequence ending at s_i.
+        - Then start from the last value in the longest sequence and follow the pointers back.
+    - Time Complexity: O(mn) since we fill out the DP table.
+
+## Unordered Partition/Subset Sum
+- Subset sum problem: does there exist a subset S' of an input multiset of n positive integers S = {s1,...,sn} whose elements add up to a given target k.
+- Main idea (top down approach):
+    - Either the nth integer s_n is part of the subset adding up to k or it's not.
+        - If it is, there must be a way to make a subset of the first n-1 elements of S adding up to k - sn.
+        - If not, there may be a solution that doesn't use sn.
+- Main idea (bottom up approach):
+    - dp[i][k] is True if it is possible to achieve the sum k using the first i elements of nums.
+    - The solution to the problem is dp[n][k] where n is the number of elements in nums.
+- Time Complexity: Filling the table takes O(nk).
+
+## Ordered Partition Problem
+- Is it possible to divide a given array into two subsets such that the sum of elements in both subsets is equal?
+- Main idea (bottom up approach):
+    - dp[i][j]: boolean value indicating whether it is possible to achieve a sum j using the first i elements of nums.
+    - Steps:
+        1. Check feasability
+            - Compute totalSum = sum(nums)
+            - If totalSum % 2 != 0, return False
+        2. Define the Dp table
+            - dp[i][j]: true if a sum j can be achieved using the first i elements.
+        3. Base case
+            - dp[i][0] = true: a sum of 0 is always achievable by choosing no elements.
+        4. Recurrence relation
+            - If j < nums[i-1], exclude the current element.
+                - dp[i][j] = dp[i-1][j]
+            - Else, include or exclude the current element
+                - dp[i][j] = dp[i-1][j] OR
+                - dp[i][j] = dp[i-1][j-nums[i-1]]
+        5. Final answer
+            - Return dp[n][target], where target = totalSum / 2
+
+## Parsing Context-Free Grammars
+- Compilers identify whether a particular program is a legal expression in a particular language, and gives syntax errors if not.
+- This requires a description of the language syntax using context free grammar.
+    - Each rule or production of the grammar defines an interpretation for the named symbol on the left side of the rule as a sequence on the right side of the rule.
+    - The right side is a combination of nonterminal and terminal symbols.
+- Parsing a given text sequence S with a given CFG G is the algorithm problem of constructing a parse tree of rule substitutitons defining S as a single nonterminal symbol of G.
+
+### Chomsky Normal Form (CNF):
+- Determines whether a string w belongs to a languaged generated by a context-free grammar (CFG) in CNF.
+- Grammar Format:
+    - Every production must be either:
+        - A -> BC (two nonterminals)
+        - A -> a (single terminal)
+    - If grammar is not in CNF, convert it first.
+- DP Table Definition:
+    - Build a 2D table where
+        - i = starting index of substring (0-based)
+        - j = length of substring
+        - dp[i][j] = set of nonterminals that can generate substring w[i:i+j]
+- Algorithm steps:
+    1. Initialisation (length = 1 substring)
+        - For each position i:
+            - For every rule A -> w[i], add A to dp[i][1]
+        - This fills the bottom row of the dp table.
+    2. Build table for longer substrings
+        - For substring lengths j = 2 ... n:
+        - For each starting position i:
+        - For every possible split point k:
+            - NOTE: first part has length k, second part length j - k
+            - For each production A -> BC:
+                - If B \in dp[i][k] and C \in dp[i+k][j-k], add A to dp[i][j]
+        - This is the core recurrence
+    3. Acceptance Condition
+        - The string w is in the language iff:
+            - Start symbol S \in dp[0][n]
+            - where n is the length of w
+- Time Complexity: O(n^3 * |G|)
+- Space Complexity: O(n^2)
+
+## Limitations of DP: TSP
+- Longest simple path: what is the most expensive path from s to t that does not visit any vertex more than once.
+
+### When is DP correct?
+- Only as correct as the recurrence relations they are based on.
+- Can be applied to any problem that obeys the principle of optimality.
+    - This means partial solutions can be optimally extended given the state after the partial solution, instead of the speicifics of the partial solution itself.
+    - Future decisions are made based on the consequences of previous decisions, not the actual decision themselves.
+
+### When is DP efficient?
+- The runtime of a DP algorithm is a function of two components:
+    1. The number of partial solutions we need to track.
+    2. How long it takes to evaluate each partial solution.
+- Generally, the first issue is the main concern.
