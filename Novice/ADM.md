@@ -1357,3 +1357,118 @@ SetCover(s):
         Find subset Si with largest intersection with U     # Find best current subset
         Select Si as set cover                              # Set setcover
         U = U - Si                                          # Remove claimed values and iterate
+```
+
+# Ch 12 - Dealing with Hard Problems
+
+## TSP
+- Considering a minimum spanning tree, we know that the minimum weight of the optimal path for TSP is bounded by the total weight of the MST.
+- If exploring the MST through DFS, we get costs at most twice the total cost of the tree. This is because we explore each edge twice.
+- If we instead take a direct path to the next unvisited vertex at each step, it is must faster.
+    - We construct a new "shortcut" tour in O(n + m), where n = number of vertex and m = number of edges.
+    - This always has weight at most twice of the optimal TSP tour of G.
+
+### Christofides Heuristic
+- Eulerian cycle: Circuit in graph G traversing each edge exactly once.
+    - Circuit: Walk with no repeated edges.
+    - Cycle: Walk where no vertices are repeated except the starting and ending vertex.
+    - Can easily test if a connected graph contains this cycle, by just checking if every vertex has an even edgree.
+- We can use this to construct a new multigraph which recruits every edge in the MST twice.
+- Hence we can construct a TSP tour with a cost at most twice that of the optimal tour.
+- If we can find a cheaper way to ensure all vertices are of even degree, we may find a better approximation for TSP.
+- Lowest cost perfect matching: Every vertex must appear in exactly one matching edge.
+- Christofides heuristic constructs a multigraph M consisting of the minimum spanning tree of G plus the minimum weight set of matching edge between odd-degree vertices in this tree.
+    - Thus, M is an Eularian graph, and contains an Eularian cycle that can be shortcut to build a TSP tour of weight at most M.
+- Using this heuristic allows us to find a solution of at most 3/2 times the weight of the optimal tour.
+
+## Heuristic Searches
+**2 Core Components**:
+- Solution Candidate Representation: Complete yet concise description of possible solutions for a problem, just like in backtracking.
+    - For TSP, solution search space contains (n-1)! elements, precisely every possible circular permutation of all vertices.
+    - Candidate solution can be represented using an array S of n - 1 vertices, where Si defines the (i+1)st vertex on the tour starting from v1.
+- Cost Function: Search methods need a cost or evaluation function to assess the quality of each possible solution
+    - Search heuristic identifies element with the best score.
+    - For TSP, cost function for evaluating candidate solution S just sums the weight of all edges, where S0 and Sn both denote the starting vertex.
+
+### Random Sampling
+- AKA Monte Carlo method.
+- Repeatedly construct random solutions and evaluate them, stopping once we get a good enough solution or (more likely) when we get tired of waiting.
+- We report the best solution we found.
+- True random sampling requires each elements in the solution space having an equally likely probability of being the next selected candidate.
+- Useful when:
+    - There is a large proportion of acceptable solutions, such as finding hay in a haystack.
+    - Finding prime numbers, as roughly one in every ln(n) integers are prime, so only need to choose and select a modest number of random samples.
+    - No coherence in the solution space: Random sampling is appropriate when you have no sense if you are getting closer to a solution.
+
+### Local Search
+- Scans the neighbourhood around elements in the search space.
+- Start from some arbitrary element of the solution space, then scan the neighbourhood looking for a favourable transition to take.
+- In Hill Climbing, this can take us to local maxima instead of global maxima, as we stop when there are no more favourable transitions nearby.
+- Useful when:
+    - Great coherence in search sapce: Hill climbing works best with exactly one hill, meaning you end up at the global maximum no matter where you start.
+    - When the cost of incremental evaluation is much cheaper than global evaluation.
+- Depending on search space, there may not be much we can do after finding the local optimum.
+    - For example, random restarts might not be very helpful if there is many low hills.
+
+### Simulated Annealing
+- Heuristic search procedure that allows occasional transitions leading to more expensive (heuristically inferior) solutions.
+- Assigns a temperature T that decreases over time.
+    - A higher temperature allows more random moves, meaning it is more likely to select a worse move.
+    - As T cools down (decreases), worse moves become less likely, and better moves become more likely.
+```
+# Note: C = cost function
+SimulatedAnnealing()
+    Create initial solution s
+    Initialise temperature T
+    repeat
+        for i = 1 to iteration-length do
+            Randomly select neighbour of s to be si
+            If (C(s) >= C(si)) then s = si
+            else if (e^(C(s)-C(si))/(kB * T) > random[0, 1]) then s = si
+        Reduce temperature T
+    until (no change in C(s))
+    Return s
+```
+- Cooling function can be designed however the user prefers.
+- As an example, we can start with T1 = 1, and decrement it by:
+    - Ti = alpha * T(i-1), where 0.8 <= alpha <= 0.99
+
+#### Applications of Simulated Annealing:
+- Maximum Cut
+    - Seeks to partition the vertices of weighted graph G into sets V1 and V2 to maximise the weight (or number) of edges with one vertex in each set.
+    - NP-Complete.
+- Independent Set
+    - An independent set of graph G is a buset of vertices S such that there is no edge with both endpoints in S.
+    - The maximum independent set is the largest vertex set that induces an empty (edgeless) subgraph.
+- Circuit Board Placement
+    - Sometimes when designing printed circuit boards, we face problems with positioning modules (like in integrated circuits).
+    - Desired criteria in a layout may include:
+        1. Minmising the area or optimising the aspect ratio of the board so that it fits in a particular space.
+        2. Minimising the total or longest wire length in connecting the components.
+    - This problem is representative of the type of messy, multicriterion optimisation problems in which simulated annealing is suited.
+
+## Genetic Algorithms
+- Draws inspiration from evolution and natural selection.
+- Maintains a population of solution candidates for the given problem.
+- Fitness function evaluates how good a candidate is for this problem.
+- Selection, crossover, mutation generate new candidates by combining and randomly altering high fitness solutions.
+- We iterate over generations until the population converges or a good enough solution is found.
+
+## Discrete Fourier Transform
+- Takes a list of numbers (a signal) and expresses it as a combination of sine and cosine waves of different frequencies.
+- Tells you how much of each frequency is present in the signal.
+- Mathematically it converts data from a time domain into a frequency domain.
+- The formula uses complex numbers and costs O(n^2) time.
+    - This can be sped up using FFTs as explained below.
+
+### Faster Fourier Transform:
+- FTT Computes the discrete Fourier transform (DFT) in O(nlog(n)) instead of O(n^2).
+- Divide and conquer: split the input into even and odd indexed parts, comupte their DFTs recursively, then combine.
+- Use "twiddle factors" (complex roots of unity) to efficiently recombine the sub-results.
+- Widely used for signal processing, convultion, audio/image compression, and many scientific computations.
+
+## Shor's Algorithm for Integer Factorisation
+- Uses quantum computing to find the period of a modular function.
+- Converts integer factorisation into a period-finding problem.
+- Quantum Foruier transform finds this period exponentially faster than classical methods.
+- Uses the period to compute the non-trivial factors of the target number.
