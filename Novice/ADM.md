@@ -1472,3 +1472,26 @@ SimulatedAnnealing()
 - Converts integer factorisation into a period-finding problem.
 - Quantum Foruier transform finds this period exponentially faster than classical methods.
 - Uses the period to compute the non-trivial factors of the target number.
+
+# Ch 13 - How to Design Algorithms
+- Strategy: Represents the quest for the big picture, the framework around which we construct our path to the goal.
+- Tactics: Used to win the minor battles we must fight along the way.
+
+Steps to finding a solution: (REF PDF page 443 / 430 in textbook)
+1. Do I really understand the problem?
+    - What is the input, whats the desired output, what type of problem is this (graph, string, set)?
+2. Can I find a simple algorithm or heuristic for my problem?
+    - Will brute force solve this correctly, should I try some simple rule like random selection?
+3. Is my problem in the catalog of algorithmic problems in the first half of ADM?
+    - What is known about the problem, are there relevant resources, is this similar to any problems I've faced before.
+4. Are there special cases of the problem that I know how to solve?
+    - Can I solve efficiently when I ignore some input parameters, is it easier when input parameters are trivial values like 0 or 1, how can I simplify this problem to a point I can solve it efficiently (then modify to include other components later)?
+5. Which of the standard algorithm design paradigms are most relevant to my problem?
+    - What data type, are we sorting, can we retrict or split the problem, is order important, are there repeated lookups, what components may be inefficient and have alternative solutions (e.g checking in hashmap instead of array).
+6. Am I still stumped?
+    - Find external help, ask questions or consult online resources.
+
+## Preparing for Interviews
+- Recommended leetcode questions are listed at the end of each ADM chapter.
+- Ask many questions to ensure you understand the problem thoroughly.
+- Start simple, then look to optimise after.
