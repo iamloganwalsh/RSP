@@ -1228,3 +1228,132 @@ print(f"Minimum edit distance: {result}")
     1. The number of partial solutions we need to track.
     2. How long it takes to evaluate each partial solution.
 - Generally, the first issue is the main concern.
+
+# Ch 11 - NP-Completeness
+- P: Problems that can be solved in polynomial time.
+- NP: Problems whose solutions can be verified in polynomial time.
+- P \eqSubset NP: every problem in P is in NP, but we haven't proven that vice versa also true.
+    - If you can solve the problem in polynomial time, then you must've verified that it was correct in polynomial time as well.
+
+## Problems and Reductions
+- If a problem X can be reduced to an instance of problem Y, then it means that problem Y is at least as ahrd as problem X.
+- Decision problems: Does there exist an object satisfying some given properties?
+- Optimisation problems: What is the size of the biggest/smallest such object?
+- Search: Find the biggest/smallest such object
+- Decision <=p Optimisation: run optimisation algorithm and check if output >= k.
+- Optimisation <=p Search: run search algorithm and return size of the input.
+- NP-Complete: A problem is NP-complete if:
+    1. It is NP Hard: every problem in NP can reduce to it.
+    2. Is in NP: can be verified in polynomial time.
+
+### Convex Hull (*)
+- A polygon is convex is the straight line segment drawn between any two points inside polygon P lies completely within the polygon.
+- A convex hull provides a very useful way to give strutcure to a point set.
+
+## Elementary Hardness Reductions
+
+### Hamilton Cycle
+- Input: Unweighted graph G.
+- Output: Does there exist a simple tour that visits each vertex of G without repetition?
+    - i.e each vertex is visited exactly one time.
+
+### Independent Set and Vertex Cover
+- Vertex Cover:
+    - Input: Graph G = (V, E) and integer k <= |V|.
+    - Output: Is there a subset S of at most k vertices such that every e \in E contains at least on vertex in S.
+- Independent Set:
+    - Input: Graph G = (V, E) and integer k <= |V|.
+    - Output: Does there exist an independent set of k vertices in G?
+        - Independent set: A set of vertices such that no two vertices are directly connected by a single edge.
+- Reduction:
+    - If S is the vertex cover of G, the remaining vertices S - V must form an independent set, for if an edge had both vertices in S - V, then S could not be a vertex cover.
+```
+VertexCover(G, k):
+    G' = G
+    k' = |V| - k
+    Return IndependentSet(G', k')
+```
+
+### Clique
+- A clique is a complete subgraph where each vertex pair has an edge between them.
+- Input: Graph G = (V, E) and integer k <= |V|.
+- Output: Does the graph contain a clique of k vertices?
+```
+IndependentSet(G, k):
+    Construct graph G' = (V', E') where V' = V and:
+        for all (i, j) not in E, add (i, j) to E'           # Only add vertex pairs with edge between them
+    Return the answer to Clique(G', k)
+```
+
+### Satisfiability
+- Input: Set of Boolean variables V and set of clauses C over V.
+- Output: Does there exist a satisfying truth assignment for C?
+    - A way to set the variables v1, ..., vn true or false so that each clause contains at least one true literal.
+- 3-Satisfiability:
+    - Input: Collection of clauses C where each clause contains exactly 3 literals (3 variables in every clause), over a set of boolean variables V.
+    - Output: Is there a truth assignment to V such that each clause is satisfied?
+```
+Take Variables x1, x2, x3
+And clauses:
+    C1 = (x1 ∨ ¬x2 ∨ x3)
+    C2 = (¬x1 ∨ ¬x3)
+    C3 = (x2 ∨ x3)
+
+x1 = x3 = True, x2 = False
+Is unsatisfiable as C2 = (FALSE or FALSE) = False.
+
+On the other hand,
+x2 = x3 = True, x1 = False
+All clauses are true, meaning this equation is satisfiable.
+```
+
+## P vs NP
+- Verification: Checking if a given solution to a problem is correct.
+- Discovery: Finding the actual solution to a problem.
+- P: Exclusive club for algorithm problems where there exists a polynomial-time algorithm to solve it from scratch.
+    - Shortest path, minimum spanning tree, movie scheduling problem.
+    - P stands for polynomial time.
+    - Polynomial time means the algorithm is bounded by some time complexity.
+    - Variable is the base (e.g n^k where k is a constant).
+- NP: Non polynomial.
+    - Running time is not necessarily bounded.
+    - Exponential time, variable is the exponent (e.g k^n where k is a constant).
+
+## Dealing with NP-Complete Problems
+- An NP-Complete problem is a decision problem (yes/no answer) that can be verified in polynomial time, and for which every othe rNP problem can be reduced in polynomial time.
+    - If we find polynomial-time solution for one NP-complete problem, you could solve all problems in NP in polynomial time.
+- We usually want to find a program to solve a problem of interest, even if we know that it won't be optimal in the worst case.
+- There are 3 options:
+    1. Algorithms fast in the average case: e.g backtracking algorithms with pruning.
+    2. Heuristics: methods like simulated annealing or greedy approaches can be used toq uickly find a solution, although there is no guarantee it is the best solution.
+    3. Approximation algorithms: NP completeness only states that it is hard to get close to the answer. With clever problem specific heuristics, we can probably get close to the optimal answer on all possible instances.
+
+### Approximating Vertex Cover
+- A simple procedure can be used to find a cover that is at most twice as large as the optimal cover.
+```
+VertexCover(G = (V, E)):
+    While (E != null):
+        Pick any edge (u, v) in E
+        Add both u and v to vertex cover
+        Delete all edges from E that are incident to either u or v
+```
+
+### Maximum Acyclic Subgraph
+- Directed acyclic graphs are easier to work with than general digraphs.
+- Input: Directed graph G = (V, E).
+- Output: Find largest possible subset E' \in E such that G' = (V, E') is acyclic.
+    - Construct any permutation of the vertices, and interpret it as a left-right ordering.
+    - Now, some of the edges point left to right, while the remainder point right to left.
+    - One of thes two edge subsets must be at least as large as the other, meaning it contains at least half the edges.
+        - Furthermore, these two edge subsets must be acyclic.
+        - This must contain at least half the edges of the optimal solution.
+
+### Set Cover
+- Input: Collection of subsets S = {s1, ..., sm} of the universal set U = {1, ..., n}.
+- Output: What is the smallest subset T of S whose union equals the universal set?
+```
+SetCover(s):
+    While (U != null):
+        Find subset Si with largest intersection with U     # Find best current subset
+        Select Si as set cover                              # Set setcover
+        U = U - Si                                          # Remove claimed values and iterate
