@@ -8,6 +8,7 @@
 - For example, in "hello" we have nodes "h" -> "e" -> "l" -> "l" -> "o"
 - Allows efficient retrieval and storage of keys
 - Supports insertion, search, deletion, and prefix searches
+- Space Complexity: O(nm), n = num keys, m = average or max length of keys.
 
 ### Examples
 Say we insert hello, world, henry, wall

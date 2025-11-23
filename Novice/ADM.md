@@ -427,7 +427,7 @@ def prim_mst(adj_list):
 
         visited.add(current_node)
 
-        Add valid edges to the MST
+        # Add valid edges to the MST
         if parent is not None:
             mst_edges.append((parent, current_node, weight))
             total_weight += weight
