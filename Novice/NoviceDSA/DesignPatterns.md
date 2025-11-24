@@ -1,6 +1,7 @@
 # Singleton Design Pattern
 - A singleton class only has one instance and provides a global point of access to it.
 - Used when we want a centralised control of resources, such as managing db connections, configuration settings or logging.
+- Centralised state management.
 
 **General Description**: Memory holds a single instance of the Singleton class. There is a private static method where the class is instantiated, which is the private constructor. A public static method, called something like Getinstance() either creates the singleton (if one doesn't exist using lazy initialisation), or returns the singleton class that currently exists.
 
@@ -9,3 +10,7 @@
 - The user will ask the factory for an object, and the factory decides which specific class to create.
 - For example, imagine asking for "coffee" at a cafe, and the barista decides whether to serve a Latte, Long Black or Flate White.
 - To simplify, a factory pattern is just a helper that makes objects for you. For example, you can ask for a circle, and the factory will instantiate the circle object and pass that back to you. Allows prevention of many if statements.
+- Interface: Declares common functions with no implementation.
+- Concrete product: Different implementations of the interface.
+- Creator class: Declares the factory method that returns new product objects.
+- Concrete Creators: Override the base factory method so it returns a different type of product.

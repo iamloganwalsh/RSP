@@ -23,14 +23,13 @@ class UnionFind:
         Find the root of the set containing x with path compression.
         """
         if self.parent[x] != x:                             # If x has a known parent
-            self.parent[x] = self.find(self.parent[x])      # Recursively find their parent
+            self.parent[x] = self.find(self.parent[x])      # Recursively find their parent (Breaks previous links so it only connects to the representative)
         return self.parent[x]                               # Return their parent
 
     def union(self, x, y):
         """
         Union the sets containing x and y using union by rank.
         """
-
         root_x = self.find(x)
         root_y = self.find(y)
 
@@ -50,7 +49,7 @@ class UnionFind:
         return self.find(x) == self.find(y)
 ```
 
-Time Complexity: O(n).<br>
+Time Complexity: Amortised O(1). (ACTUALLY INVERSE ACKERMANN FUNCTION)<br>
 Auxillary Complexity: O(n).
 - Store n parents.
 - Store n ranks.

@@ -644,6 +644,7 @@ import math
 def floyd_warshall(graph):
     """
     Implements the Floyd-Warshall algorithm to find all-pairs shortest paths.
+    Uses a third for loop to check if detouring through node k can provide a shorter path (due to negative weights).
     graph: 2D list (matrix) representing the adjacency martix of the graph.
         graph[i][j] is the weight of the edge from i to j.
         math.inf represents no direct edge between i and j.
@@ -1231,6 +1232,7 @@ print(f"Minimum edit distance: {result}")
 
 # Ch 11 - NP-Completeness
 - P: Problems that can be solved in polynomial time.
+    - Can be solved in a reasonable amount of time.
 - NP: Problems whose solutions can be verified in polynomial time.
 - P \eqSubset NP: every problem in P is in NP, but we haven't proven that vice versa also true.
     - If you can solve the problem in polynomial time, then you must've verified that it was correct in polynomial time as well.

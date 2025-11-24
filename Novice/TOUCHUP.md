@@ -6,3 +6,9 @@
 5. Basic mathematic patterns
 6. B+ Trees
 7. Networking
+8. SORTING ALGORITHMS
+    - Mergesort
+    - Quicksort
+    - OTHER SORTS
+9. Quick Select
+10. Union Find
