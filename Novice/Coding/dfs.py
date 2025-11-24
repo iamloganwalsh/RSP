@@ -15,22 +15,11 @@ def dfs(node, value):
 
 # Test Example
 if __name__ == "__main__":
-    # Create a binary tree:
-    #        5
-    #       / \
-    #      3   8
-    #     / \   \
-    #    1   4   9
-    
-    # Build the tree carefully
+
     root = BinaryTree(5)
-    
-    # Add left subtree
     root.left = BinaryTree(3)
     root.left.left = BinaryTree(1)
     root.left.right = BinaryTree(4)
-    
-    # Add right subtree
     root.right = BinaryTree(8)
     root.right.right = BinaryTree(9)
     

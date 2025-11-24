@@ -21,10 +21,15 @@ def bellman_ford(num_vertices, edges, start):
             # Relax edges (replace with shorter path)
             if dist[u] != math.inf and dist[u] + weight < dist[v]:
 
-                if i == num_vertices - 1:           # If our path can still be improved, we have a negative cycle
+                if i == num_vertices - 1:           # If our path can still be improved, we have a negative cycle (after iterating all vertices, we do an extra iteration to check for this)
                     return [None]
 
                 dist[v] = dist[u] + weight
     
     return dist
 ```
+
+Time Complexity: O(V * E).
+- We check each vertex and edge exactly one time.
+Auxillary space: O(V).
+- We store the distance to each vertex.

@@ -49,3 +49,8 @@ class UnionFind:
         """
         return self.find(x) == self.find(y)
 ```
+
+Time Complexity: O(n).<br>
+Auxillary Complexity: O(n).
+- Store n parents.
+- Store n ranks.
