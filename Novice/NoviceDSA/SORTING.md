@@ -83,3 +83,29 @@ Average case TC:
 Worst case TC:
 - Occurs when all elements in a single bucket
 - In this case, mergesort or heapsort would be faster, but for small arrays insertion sort is faster
+
+## Heap Sort
+- Min or Max Heaps.
+- Works like a priority queue.
+- Heaps aren't necessarily sorted but lie somewhere between sorted and random.
+    - In Min heap: each node is larger than it's parents but smaller than it's children, though is not sorted between it's siblings.
+- Heaps are typically binary trees
+- Always fills left to right
+- Accessing parent (from array): child_index // 2
+- Access children (from array): parent_index * 2
+- Involves constructing a heap and then popping the root repeatedly, adding the value to the sorted array.
+
+Time Complexity: O(nlog(n))
+- Building heap: O(n) using bottom-up construction
+- Heapifying: O(log(n)) per removal because we have to maintain the heap property (percolating down)
+- Total: O(nlog(n)) building heap * performing n heapify operations
+Auxillary Space: O(log(n)) for recursion or O(1) for iteration
+
+### Heap Init & Insert
+- Sequentially add each value to the heap, percolating on each iteration to ensure integrity.
+- O(log(n))
+
+### Heap Delete
+- When we pop the root (i.e the max or min of the heap), we replace with the right-most (last) child.
+- Iteratively percolate down to ensure heap integrity.
+- O(log(n))

@@ -1,10 +1,11 @@
 # Minimum Spanning Tree
 - A minimum spanning tree is a way to transform a graph into only keeping the lowest weighted edges while still being able to reach every vertex from every vertex.
 - The MST is the smallest connected subgraph of some graph G which has the minimum possible total weights (while still being connected).
-- For directed graphs, we can find the MST using two algorithms:
+- For undirected graphs, we can find the MST using two algorithms:
     - Prims: Grow the MST by starting from any node and repeatedly adding the cheapest edge that connects the tree to a new node.
         - Can do this easily using a min heap to sort edges by weight and a visited hashtable to only visit new nodes.
-        - Time Complexity: O(E+Vlog(V)). (Fibonacci heap)
+        - Time Complexity: O(Elog(V)).
+            - **Ultimately, E ~= V in sparse, so Elog(V) ~= Vlog(V). In dense, E ~= V^2, so Elog(V) >> Vlog(V), thus can simplify to Elog(V).**
             - Adding edges to the PQ takes O(Elog(V)).
             - Extracting minimum edge takes O(log(V)), and we do it V times for a total of O(Vlog(V)).
     - Kruskals: Start by having all vertices as disconnected graphs with no edges. Build the MST by sorting all edges by weight and adding them in order, skipping any that would form a cycle.
@@ -13,22 +14,27 @@
             - The while loop runs at most E times.
 
 ## KRUSKALS > PRIMS
-- Better for sparse graphs
+- Sparse graphs
     - Sorts edges and processes one by one
     - Union find so can prevent cyles (if there is a common parent between two vertices we don't add the edge)
     - E ~= V
+        - Kruskals: Elog(E) = Vlog(V)
+        - Prims: Elog(V) = Vlog(V)
+        - Sameish time complexities so need to look at specifics below
     - Union find is extremely fast (O(a(n))), and sorting ~V edges is cheap
     - More overhead from Prims pushing to PQ
 
 ## PRIMS > KRUSKALS
-- Better for dense graphs
+- Dense graphs
     - Grows MST one vertex at a time
     - Uses PQ to track candidate edges
     - E ~= V^2
-    - Plugging into equations:
-        - Kruskals becomes (V^2log(V^2))
-        - Prims becomes (V^2 + Vlog(V))
-        - V^2 < V^2log(V^2) so prims is faster here
+        - Kruskals: Elog(E) = V^2log(V^2) ~= V^2log(V)
+        - Prims: Elog(V) = V^2log(V)
+            - **If using an adjacency matrix, this can simplify to O(V^2)**
+            - Scan V vertices to find minimum O(V) and do this V times for O(V^2)
+            - Regardless, prims runs slightly faster here
+        - V^2log(V) < V^2log(V^2) so prims is faster here even with pq implementation
 
 ```py
 import heapq
