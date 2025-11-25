@@ -40,15 +40,15 @@ Superlinear function: f(n) = nlog(n).
 4. If the assumption violates the truth, the hypothesis must be correct.
 
 ## Insertion Sort
-Left: Unsorted<br>
-Right: Sorted
+Left: Sorted<br>
+Right: Unsorted
 
-Insertion sort builds the sorted list one element at a time by taking a new value and inserting it into its correct position among the already sorted elements.
+Insertion sort builds the sorted list one element at a time by taking the first value in the unsorted region and iteratively swapping with values in the sorted region until it finds its correct place to maintain the sorted property of the sorted region.
 
-For each element in the unsorted portion, swap with the new value until it fits into the correct position.
-
-Time Complexity: O(n^2).<br>
-Space Complexity: O(n).
+Time Complexity: O(n^2)<br>
+- Best Case: O(n) if already sorted.
+Auxillary Space: O(1)<br>
+Inplace: True
 
 # Ch 2 - Algorithm Analysis
 
@@ -84,7 +84,6 @@ This can be thought of as the MAXIMUM number of steps taken for the algorithm to
 Average case is a bit more complicated, and measures the expected runtime for an algorithm running on some general input.
 This can be thought of as the AVERAGE number of steps over all possible inputs.
 
-
 In most situations, the worst-case complexity is generally the most useful, as it is much easier to compute than average-case complexity and it also helps us plan around the maximum possible resource usage, ensuring the algorithm will perform acceptably even under the least favourable conditions.
 
 Big O notation is useful for simplifying complexity calculations and provides a general idea about the performance of an algorithm.
@@ -107,27 +106,34 @@ O(f(n)) * O(g(n)) -> O(f(n) * g(n)).<br>
 Θ(f(n)) * Θ(g(n)) -> Θ(f(n) * g(n)).
 
 ## Selection Sort
-Repeatedly finds the smallest remaining unsorted (right side) element and puts it at the end of the sorted portion (left side) of the array.
+Left: Sorted<br>
+Right: Unsorted
 
-Time Complexity: O(n^2).<br>
-Space Complexity: O(n).
+Repeatedly finds the smallest element in the unsorted region and appends it to the end of the sorted region.
+
+Time Complexity: O(n^2)<br>
+Auxillary Space: O(1)<br>
+Inplace: True
 
 ## Pattern Matching
 Searching for a substring in a larger text. Used in finding operations in common tools such as the browser (CRTL + f).
 
-Time Complexity: O(nm), n = size of text, m = size of substring.<br>
-Space Complexity: O(m).
+Time Complexity: O(nm), n = size of text, m = size of substring (naive string matching)<br>
+Space Complexity: O(m)
 
 ## Matrix Multiplication
 Multiplying two matrices A (of dimension x * y), and B (of dimension y * z). Note that one dimension must be found in both matrices.
 
-Time Complexity: O(n^3).<br>
-Space Complexity: O(n^2).
+Time Complexity: O(n^3)<br>
+Auxillary Space: O(n^2)
+Inplace: False
 
 ## Binary Search
 A searching algorithm typically designed for a one-dimensional array. Iteratively cut the search space in half until either finding the target or losing the ability to cut further.
 
-Time Complexity: O(n).
+Time Complexity: O(log(n))<br>
+- Best Case O(1) when first array[mid] == target
+Auxillary Space: O(1)
 
 # Ch 3 - Data Structures
 Contiguous DS: Contiguously allocated structures are composed of single slabs of memory, including arrays, matrices, heaps, and hash tables.
@@ -139,9 +145,10 @@ Dynamic array: Array that doubles its capacity whenever it fills up, relocates a
 Container: Abstract data type that permits storage and retrieval of data items independent of content. Distinguished by retrieval order (e.g LIFO, FIFO).
 
 ## Binary Search Tree
-**Search** Time Complexity: O(h), height of the tree.<br>
-**Insert** Time Complexity: O(h).<br>
-**Delete** Time Complexity: O(h).
+**Search** Time Complexity: O(h), height of the tree<br>
+**Insert** Time Complexity: O(h)<br>
+**Delete** Time Complexity: O(h)<br>
+**BALANCED BST** Time Complexity for all operations becomes O(log(n))
 - Note: When deleting a node with two children, we find the next highest value (the next value InOrder) to replace the deleted node.
 - Alternative BST's such as red-black and splay trees ensure BST is balanced, allowing for log(n) operations instead of O(h).
 
@@ -172,17 +179,24 @@ Container: Abstract data type that permits storage and retrieval of data items i
 - Accessing parent (from array): child_index // 2
 - Access children (from array): parent_index * 2
 - Involves constructing a heap and then popping the root repeatedly, adding the value to the sorted array.
-    - Time Complexity: O(nlog(n))
+
+Time Complexity: O(nlog(n))
+- Building heap: O(n) using bottom-up construction
+- Heapifying: O(log(n)) per removal because we have to maintain the heap property (percolating down)
+- Total: O(nlog(n)) building heap * performing n heapify operations
+Auxillary Space: O(log(n)) for recursion or O(1) for iteration
 
 ### Heap Init & Insert
 - Sequentially add each value to the heap, percolating on each iteration to ensure integrity.
+- O(log(n))
 
 ### Heap Delete
 - When we pop the root (i.e the max or min of the heap), we replace with the right-most (last) child.
 - Iteratively percolate down to ensure heap integrity.
+- O(log(n))
 
 ### Faster Heap Construction (Bottom-Up Build)
-- Instead of inserting one element at at ime, treat the array as a heap and fix it from the bottom up.
+- Instead of inserting one element at a time, treat the array as a heap and fix it from the bottom up.
 - Start from the last non-leaf node and percolate down.
 - This turns the arbitrary array into a valid heap in O(n) time.
 - Construction time does not dominate complexity of heap sort, so sorting still takes O(nlog(n)).
@@ -217,15 +231,23 @@ Container: Abstract data type that permits storage and retrieval of data items i
 
 ## Bucket Sort
 Example: Sorting names in a phonebook.
-- First, partition them according to first letter of the larst name.
+- First, partition them according to the first letter of the last name.
 - This creates 26 buckets of names.
     - Any name in the C pile must occur after any name in the B pile.
     - Therefore we can sort individual buckets and concatenate them all together to form a sorted list.
 - Assuming names are evenly distributed, 26 smaller sorting problems are much better than sorting an entire array.
 - We can further partition each pile based on the second letter of each name, getting smaller and smaller piles.
 - The set of names will be completely sorted once every bucket contains only a single name.
+- Uses insertion sort because better for sorting small arrays.
 
 Bucket sort is very effective when we expect the distribution of data to be uniform.
+
+Best Case TC: O(n+k) with n items and k buckets
+- Occurs when data is uniformly distributed
+Average case TC: 
+Worst case TC:
+- Occurs when all elements in a single bucket
+- In this case, mergesort or heapsort would be faster, but for small arrays insertion sort is faster
 
 # Ch 5 - Divide and Conquer
 - Divide a problem into 2 smaller subproblems, solve each recursively, then combine the partitions into the final solution.
@@ -708,7 +730,7 @@ def bellman_ford(num_vertices, edges, start):
 - The network flow problem asks for the maximum amount of flow that can be sent from vertices s to t in a given weighted graph G while respecting the maximum capacities of each pipe.
 
 ### Bipartite Matching
-- A matching in a graph G = (V, E) is a subset of edges E' \subset E such taht no two edges E' share a vertex.
+- A matching in a graph G = (V, E) is a subset of edges E' \subset E such that no two edges E' share a vertex.
     - A set of edges that don't share any vertices.
 - G is bipartite or two-colourable if the verices can be divided into two sets L and R such that all edges in G have one vertex in L and one vertex in R.
 - Finding the maximum cardinality bipartite matching using network flow:
@@ -872,7 +894,7 @@ def all_paths(g, s, t):
     - The (n - 2)! permutations enumerated starting with (v1, v2) as its prefix would be a complete waste of effort.
     - It is better to stop the search after [v1, v2] and continue from [v1, v3].
         - This means to discard the search that finds [v1, v2] and instead try the next best option, which in this case is [v1, v3] as this is a valid edge in G.
-- Pruning: The technique of abandoning a serach direction the instant we can establish that a given partial solution can't be extended into a full solution.
+- Pruning: The technique of abandoning a search direction the instant we can establish that a given partial solution can't be extended into a full solution.
     - Also known as forward checking.
 
 ## Sudoku
@@ -937,7 +959,7 @@ def sudoku(board):
     - g(n): current path cost.
     - h(n): heuristic estimated cost from node n to goal.
     - f(n): estimated total cost of path through node n to the goal.
-- Without h(n), the algorithm is essentially Dijkstra's algorith.
+- Without h(n), the algorithm is essentially Dijkstra's algorithm.
 
 # Ch 10 - Dynamic Programming
 - Algorithms for optimisation problems require proof that they always return the best possible solution.
@@ -997,7 +1019,7 @@ print(binomial_memo(5, 2))      # Prints 10
         1. Substitution: replace a single character in pattern P with a different character.
         2. Insertion: insert a single character into P to help it match text T.
         3. Deletion: delete a single character from P to help it match T.
-    - Each operation has a cost of 1
+    - Each operation has a cost of 1.
 
 ### Edit Distance by Recursion
 - The last character in the string must be matched, substituted, inserted, or deleted.
@@ -1052,7 +1074,7 @@ result = str_comp_r(s, t, len(s), len(t))
 print(f"Minimum edit distance: {result}")
 ```
 - While this is a correct implementation, it has exponential time complexity because it recalculates values.
-- At every position in the string, the recursion branches 3 ways, so it grows at a rate of at least 3^n.
+- At every position in the string, the recursion branches 3 ways, so it grows at a rate of at least 3^(m+n).
 
 **DP Implementation**
 ```py
@@ -1080,12 +1102,12 @@ def str_comp_memo(s, t, i, j, memo):
     
     # Recursive cases with memoisation
     options = [0] * 3
-    opt[MATCH] = str_comp_r(s, t, i-1, j-1, memo) + match(s[i-1], t[j-1])
-    opt[INSERT] = str_comp_r(s, t, i, j-1, memo) + indel(t[k-1])
-    opt[DELETE] = str_comp_r(s, t, i - 1, j, memo) + indel(s[i-1])
+    options[MATCH] = str_comp_memo(s, t, i-1, j-1, memo) + match(s[i-1], t[j-1])
+    options[INSERT] = str_comp_memo(s, t, i, j-1, memo) + indel(t[k-1])
+    options[DELETE] = str_comp_memo(s, t, i - 1, j, memo) + indel(s[i-1])
 
     # Find lowest cost option and cache the result
-    memo[(i, j)] = min(opt)
+    memo[(i, j)] = min(options)
     return memo[(i, j)]
 
 def string_compare(s, t):
@@ -1098,7 +1120,11 @@ t = "execution"
 result = str_comp_memo(s, t, len(s), len(t))
 print(f"Minimum edit distance: {result}")
 ```
-### Varieties of Edit Distance
+
+Time Complexity: O(nm) using memoisation
+Space Complexity: O(nm)
+
+### Varieties of Edit Distance (Levenshtein Distance)
 - Substring matching: We want to find where a short pattern P best occurs within a long text T.
     - Without modification, the edit distance function considers the cost of deleting all characters in T that are not part of P. Starting a match in the middle of T also incurs additional costs from the prefix of T that doesn't align with P.
     - To make it works, we modify edit distance to allow:

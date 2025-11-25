@@ -36,6 +36,50 @@
 3. Can be optimised to reduce recursion depth.
 
 ## MERGESORT > QUICKSORT
-1. Linked lists (cheaper merging).
+1. Linked lists (cheaper merging, don't need extra space).
 2. Guarantees O(nlog(n)) worst case.
 3. Stable
+
+## Insertion Sort
+Left: Sorted<br>
+Right: Unsorted
+
+Insertion sort builds the sorted list one element at a time by taking the first value in the unsorted region and iteratively swapping with values in the sorted region until it finds its correct place to maintain the sorted property of the sorted region.
+
+Time Complexity: O(n^2)<br>
+- Best Case: O(n) if already sorted.
+Auxillary Space: O(1)<br>
+Inplace: True
+
+## Selection Sort
+Left: Sorted<br>
+Right: Unsorted
+
+Repeatedly finds the smallest element in the unsorted region and appends it to the end of the sorted region.
+
+Time Complexity: O(n^2)<br>
+Auxillary Space: O(1)<br>
+Inplace: True
+
+## Bucket Sort
+Example: Sorting names in a phonebook.
+- First, partition them according to the first letter of the last name.
+- This creates 26 buckets of names.
+    - Any name in the C pile must occur after any name in the B pile.
+    - Therefore we can sort individual buckets and concatenate them all together to form a sorted list.
+- Assuming names are evenly distributed, 26 smaller sorting problems are much better than sorting an entire array.
+- We can further partition each pile based on the second letter of each name, getting smaller and smaller piles.
+- The set of names will be completely sorted once every bucket contains only a single name.
+- Uses insertion sort because better for sorting small arrays.
+    - Inplace (less memory)
+    - Less overhead (lower constant factor so insertion sort faster in practice)
+    - Small array might be sorted or nearly sorted, so insertion sort functions closer to best case TC being O(n)
+
+Bucket sort is very effective when we expect the distribution of data to be uniform.
+
+Best Case TC: O(n+k) with n items and k buckets
+- Occurs when data is uniformly distributed
+Average case TC: 
+Worst case TC:
+- Occurs when all elements in a single bucket
+- In this case, mergesort or heapsort would be faster, but for small arrays insertion sort is faster

@@ -10,6 +10,7 @@
 - Uses rotations to restore balance in O(1) time, keeping the overall time complexity at O(log(n)).
     - Rotations used in insertion and deletion.
 - Search, insert and delete are all O(log(n)) opeartions (like normal BST), and then the rotations to balance the tree are O(1) each.
+- Stricter balancing, height difference between left and right subtrees is no more than 1.
 
 ### AVL - Insert
 - A new key is placed in the correct position like a normal BST.
@@ -30,6 +31,7 @@
     - Black property: every path from a node to its descendant null nodes (leaves) has the same number of black nodes.
     - All leaf nodes are black.
 - Height is at max O(log(n)).
+- Looser balancing than AVL, longest path <= 2 x shortest path.
 - Colours are used to maintain balance during insertions and deletions, ensuring efficient data retrieval and manipulation.
 
 ### RB - Insert
@@ -52,3 +54,9 @@
     - Subcase 2.1: At least one of the sibling's children is red:
         - If the sibling's far child is red: perform a rotation on the parent and sibling, and recolour appropriately.
         - If the sibling's near child is red: rotate the sibling and its child, then handle as above.
+
+## AVL > RB
+- When lookups >> insertions/deletions (read-heavy)
+
+## RB > AVL
+- When insertions/deletion ~= lookups (write-heavy or balanced)

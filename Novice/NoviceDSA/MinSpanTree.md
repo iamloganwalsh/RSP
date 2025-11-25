@@ -4,13 +4,31 @@
 - For directed graphs, we can find the MST using two algorithms:
     - Prims: Grow the MST by starting from any node and repeatedly adding the cheapest edge that connects the tree to a new node.
         - Can do this easily using a min heap to sort edges by weight and a visited hashtable to only visit new nodes.
-        - Time Complexity: O(E+Vlog(V)).
+        - Time Complexity: O(E+Vlog(V)). (Fibonacci heap)
             - Adding edges to the PQ takes O(Elog(V)).
             - Extracting minimum edge takes O(log(V)), and we do it V times for a total of O(Vlog(V)).
     - Kruskals: Start by having all vertices as disconnected graphs with no edges. Build the MST by sorting all edges by weight and adding them in order, skipping any that would form a cycle.
         - Time Complexity: O(Elog(E)).
             - Sorting edges takes O(Elog(E)).
             - The while loop runs at most E times.
+
+## KRUSKALS > PRIMS
+- Better for sparse graphs
+    - Sorts edges and processes one by one
+    - Union find so can prevent cyles (if there is a common parent between two vertices we don't add the edge)
+    - E ~= V
+    - Union find is extremely fast (O(a(n))), and sorting ~V edges is cheap
+    - More overhead from Prims pushing to PQ
+
+## PRIMS > KRUSKALS
+- Better for dense graphs
+    - Grows MST one vertex at a time
+    - Uses PQ to track candidate edges
+    - E ~= V^2
+    - Plugging into equations:
+        - Kruskals becomes (V^2log(V^2))
+        - Prims becomes (V^2 + Vlog(V))
+        - V^2 < V^2log(V^2) so prims is faster here
 
 ```py
 import heapq

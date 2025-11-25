@@ -19,18 +19,18 @@ def dijkstras(graph, start):
     distances[start] = 0
     pq = [(0, start)]
     
-    while pq:
-        curr_dist, curr_node = heapq.heappop(pq)                # Heappop to find lowest (pq)
-
+    while pq:                                                   
+        curr_dist, curr_node = heapq.heappop(pq)                # Heappop to find cheapest next node (pq)                   O(log V) for heap pop
+                                                                #                                                           O(V) maximum pops (one per vertex)
         if curr_dist > distances[curr_node]:                    # Found a shorter path previously
             continue
 
-        for neighbour, weight in graph.get(curr_node, []):      # Only check valid nodes
+        for neighbour, weight in graph.get(curr_node, []):      # Only check valid nodes                                    O(E) for checking all E edges
             dist = curr_dist + weight
 
             if dist < distances[neighbour]:                     # Enqueue new nodes if its shorter than the known path
                 distances[neighbour] = dist
-                heapq.heappush(pq, (dist, neighbour))
+                heapq.heappush(pq, (dist, neighbour))           #                                                           O(log V) for heap push
     
     return distances
 ```

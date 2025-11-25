@@ -14,17 +14,24 @@ def bellman_ford(num_vertices, edges, start):
     dist = [math.inf] * num_vertices
     dist[start] = 0
 
-    for i in range(num_vertices):
+    # Relax all edges first, finding shortest paths
+    for i in range(num_vertices - 1):
         for edge in edges:
             u, v, weight = edge
 
             # Relax edges (replace with shorter path)
             if dist[u] != math.inf and dist[u] + weight < dist[v]:
 
-                if i == num_vertices - 1:           # If our path can still be improved, we have a negative cycle (after iterating all vertices, we do an extra iteration to check for this)
-                    return [None]
-
                 dist[v] = dist[u] + weight
+
+    # Checking negative cycles (Vth iteration)
+    # Final iteration does not update, only checks for negative cycles
+    # If the distance can still be improved on the final iteration, a negative cycle must exist
+    # This is because legitimate shortest paths cannot have more than V-1 edges, so any improvement has to be due to an infinitely traversable negative cycle
+    for edge in edges:
+        u, v, weight = edge
+        if dist[u] != math.inf and dist[u] + weight < dist[v]:
+            return [None]
     
     return dist
 ```
