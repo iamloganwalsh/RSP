@@ -132,7 +132,7 @@ Inplace: False
 A searching algorithm typically designed for a one-dimensional array. Iteratively cut the search space in half until either finding the target or losing the ability to cut further.
 
 Time Complexity: O(log(n))<br>
-- Best Case O(1) when first array[mid] == target
+- Best Case O(1) when first array[mid] == target<br>
 Auxillary Space: O(1)
 
 # Ch 3 - Data Structures
@@ -242,10 +242,9 @@ Example: Sorting names in a phonebook.
 
 Bucket sort is very effective when we expect the distribution of data to be uniform.
 
-Best Case TC: O(n+k) with n items and k buckets
-- Occurs when data is uniformly distributed
-Average case TC: 
-Worst case TC:
+Best/Average Case TC: O(n+k) with n items and k buckets
+- Occurs when data is uniformly distributed<br>
+Worst case TC: O(n^2)
 - Occurs when all elements in a single bucket
 - In this case, mergesort or heapsort would be faster, but for small arrays insertion sort is faster
 
@@ -257,7 +256,7 @@ Worst case TC:
 
 ### Counting Occurances - BS
 - Can binary search to find an element, then sequentially check left and right.
-- This can take up to O(n) if the array contains only a single unique element.
+- This can take up to O(n) if the array contains only a single unique element, but usually stil O(log(n)).
 - We can modify binary search to find the right boundary of the block, then iterate left until you reach the left boundary.
     - Delete the arr[middle] == key check. This means that our search always fails and returns -1, so instead we want to return (l + r) / 2.
     - Whenever we recalculate to another index with the same value, it will proceed to the right.
@@ -270,6 +269,7 @@ Worst case TC:
     - By doubling our interval each time, we can formulate a window to perform binary search on.
     - For example, if A[8] = 0 and A[16] = 1, this can become our window.
     - This means we can find the transition point in at most 2log(p) comparisons.
+        - P is the transition point.
 
 ### Finding Square Roots
 - We can find the square root of a number using binary search.

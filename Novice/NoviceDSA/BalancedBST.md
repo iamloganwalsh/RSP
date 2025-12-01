@@ -57,6 +57,8 @@
 
 ## AVL > RB
 - When lookups >> insertions/deletions (read-heavy)
+- AVL more balanced
 
 ## RB > AVL
 - When insertions/deletion ~= lookups (write-heavy or balanced)
+- AVL more balanced but takes more rotations.

@@ -6,10 +6,9 @@
 5. Basic mathematic patterns
 6. B+ Trees
 7. Networking
-8. SORTING ALGORITHMS
-    - Mergesort
-    - Quicksort
-    - OTHER SORTS
-9. Quick Select
-10. Union Find
 11. Network Flows
+12. Topological Sort
+13. Fenwick trees (Binary index tree)
+    - Good for prefixSum
+    - AKA Binary Index Tree (BIT)
+14. Prefix Sum
